@@ -1,0 +1,277 @@
+{
+  "body_shape": {
+    "category": "正常",
+    "description": "舌体大小尚可，但边缘有轻微齿痕",
+    "tooth_marked": true,
+    "tooth_marked_desc": "舌体边缘可见明显齿痕印迹"
+  },
+  "coating_color": {
+    "category": "正常",
+    "description": "苔色未见明显异常"
+  },
+  "coating_texture": {
+    "description": "舌苔偏厚，提示食积、痰浊或病邪入里；舌面偏干燥，提示津液已伤",
+    "moisture": "燥",
+    "texture": "正常",
+    "texture_subtype": "",
+    "thickness": "厚苔"
+  },
+  "color": {
+    "classes": [
+      {
+        "conf": 0.9100141525268555,
+        "key": "white",
+        "name": "淡白舌"
+      },
+      {
+        "conf": 0.0353231318295002,
+        "key": "black",
+        "name": "绛舌"
+      },
+      {
+        "conf": 0.032814837992191315,
+        "key": "red",
+        "name": "红舌"
+      },
+      {
+        "conf": 0.02082832343876362,
+        "key": "yellow",
+        "name": "黄舌"
+      },
+      {
+        "conf": 0.0010195057839155197,
+        "key": "purple",
+        "name": "紫舌"
+      }
+    ],
+    "top_class": "淡白舌",
+    "top_conf": 0.9100141525268555,
+    "top_key": "white"
+  },
+  "cracks": {
+    "crack_area_ratio": 0.0221,
+    "description": "舌面可见少量细微裂纹",
+    "detected": true,
+    "severity": "轻微"
+  },
+  "ecchymosis": {
+    "description": "多发性瘀斑，提示中重度血瘀；少量红点，可能为轻微热象",
+    "ecchymosis_area_ratio": 0.1205,
+    "ecchymosis_count": 1,
+    "ecchymosis_desc": "舌面可见多处瘀斑（1处），提示血瘀证明显，气血运行不畅",
+    "ecchymosis_detected": true,
+    "petechiae_area_ratio": 0.0027,
+    "petechiae_count": 1,
+    "petechiae_desc": "舌面可见少量红点/瘀点（1处），可能为轻微热象",
+    "petechiae_detected": true
+  },
+  "is_guest": true,
+  "mask_quality": {
+    "area_ratio": 0.1614,
+    "contamination": 0.003,
+    "n_components": 1,
+    "ok": true,
+    "overall": 92
+  },
+  "mask_url": "assets/samples/case4/mask.jpg",
+  "morphology": {
+    "area": 25824,
+    "area_px": 25824,
+    "area_ratio": 0.1614,
+    "aspect_ratio": 0.78,
+    "bbox_height_px": 200,
+    "bbox_width_px": 156,
+    "symmetry": 0.8991
+  },
+  "original_url": "assets/samples/case4/original.jpg",
+  "overlay_url": "assets/samples/case4/overlay.jpg",
+  "pathological": {
+    "categories": [
+      {
+        "action": "继续保持观察",
+        "findings": [
+          "未见明显危重警示信号"
+        ],
+        "id": "critical_warning",
+        "name": "危重警示类",
+        "risk_level": "低",
+        "summary": "未检出明显危重警示信号"
+      },
+      {
+        "action": "建议低脂低盐饮食，适当运动，定期体检",
+        "findings": [
+          "舌色淡白，提示气血亏虚，心脉失养",
+          "舌面可见少量瘀斑（1处），提示轻度血瘀倾向"
+        ],
+        "id": "cardiovascular",
+        "name": "心脑血管与血瘀类",
+        "risk_level": "中",
+        "summary": "检出心脑血管风险信号，建议关注循环系统健康"
+      },
+      {
+        "action": "建议低脂清淡饮食，注意观察有无发热、腹痛等症状",
+        "findings": [
+          "舌面可见红点/瘀点，提示热盛或心火上炎"
+        ],
+        "id": "infection",
+        "name": "感染与热性病类",
+        "risk_level": "中",
+        "summary": "检出感染或热性病倾向，建议关注体温和炎症指标"
+      },
+      {
+        "action": "保持均衡饮食，规律作息",
+        "findings": [
+          "未见明显代谢或消化系统异常信号"
+        ],
+        "id": "metabolic",
+        "name": "代谢与消化类",
+        "risk_level": "低",
+        "summary": "未检出明显代谢或消化系统风险信号"
+      },
+      {
+        "action": "保持心情舒畅，规律作息",
+        "findings": [
+          "舌尖偏红，提示心火亢盛，可能伴有失眠、焦虑"
+        ],
+        "id": "neurological",
+        "name": "神经系统与情志类",
+        "risk_level": "低",
+        "summary": "未检出明显神经系统或情志异常信号"
+      }
+    ],
+    "disclaimer": "以上分析基于舌象图像特征的自动识别，仅供参考，不作为临床诊断依据。舌象是动态变化的，一次感冒发烧出现的黄苔是暂时的；持续超过两周的异常舌象（特别是青紫、镜面、裂纹、歪斜）才具有重大临床意义。请勿'按图索骥'给自己下病危诊断。如发现危重类舌象（歪斜、卷缩），请立即就医；慢性类舌象建议拍下舌照（自然光下），带上近期体检报告，去正规医院中医内科结合脉诊进行综合辨证。",
+    "overall_risk": "中",
+    "risk_note": "",
+    "self_check_table": [
+      {
+        "reference": "血虚相关",
+        "suggestion": "建议查血常规，排查贫血",
+        "tongue_sign": "淡白舌"
+      },
+      {
+        "reference": "血瘀相关",
+        "suggestion": "建议心内科就诊，完善凝血功能和心脑血管检查",
+        "tongue_sign": "瘀斑舌"
+      },
+      {
+        "reference": "情志相关、心火相关",
+        "suggestion": "建议调整作息，必要时中医调理",
+        "tongue_sign": "舌尖红赤"
+      }
+    ]
+  },
+  "personalized": null,
+  "quality": {
+    "components": {
+      "centeredness": 87,
+      "color_cast": 34,
+      "completeness": 100,
+      "exposure": 96,
+      "integrity": 100,
+      "sharpness": 100,
+      "tongue_ratio": 100
+    },
+    "level": "good",
+    "quality_pass": true,
+    "quality_score": 89,
+    "reasons": [
+      "图像存在明显色偏"
+    ]
+  },
+  "record_id": null,
+  "refined_color": {
+    "b_mean": 87.5,
+    "description": "舌色淡白，主虚证、寒证，多见于阳虚寒盛、气虚血少之证",
+    "g_mean": 81.0,
+    "h_mean": 159.7,
+    "is_refined": false,
+    "original_class": "淡白舌",
+    "r_mean": 163.0,
+    "refined_class": "淡白舌",
+    "s_mean": 130.5,
+    "v_mean": 163.0
+  },
+  "roi_meta": {
+    "applied_mask": true,
+    "bbox": [
+      124,
+      135,
+      297,
+      356
+    ],
+    "mask_aware": true,
+    "pad": [
+      9,
+      11
+    ]
+  },
+  "shape": {
+    "classes": [
+      {
+        "conf": 0.9808998107910156,
+        "key": "normal",
+        "name": "正常薄白苔"
+      },
+      {
+        "conf": 0.012514447793364525,
+        "key": "map",
+        "name": "剥落苔/地图舌"
+      },
+      {
+        "conf": 0.006585700437426567,
+        "key": "thick and greasy",
+        "name": "厚腻苔"
+      }
+    ],
+    "top_class": "正常薄白苔",
+    "top_conf": 0.9808998107910156,
+    "top_key": "normal"
+  },
+  "sublingual": {
+    "available": false,
+    "description": "未提供舌下照片，无法进行舌下络脉分析。请上传舌底（舌下）照片以启用此功能。",
+    "is_abnormal": false,
+    "length_ratio": 0.0,
+    "max_diameter_mm": 0.0,
+    "vein_count": 0,
+    "veins_detected": false
+  },
+  "success": true,
+  "zonal": {
+    "description": "舌尖偏红，对应心肺，此处红赤多有心火；舌中偏红，对应脾胃，苔厚腻多积食，裂纹多胃阴不足；舌根偏红，对应肾与膀胱，苔厚腻多下焦湿热",
+    "zones": [
+      {
+        "color_desc": "偏红",
+        "name": "舌尖",
+        "note": "偏红，对应心肺，此处红赤多有心火"
+      },
+      {
+        "color_desc": "偏红",
+        "name": "舌中",
+        "note": "偏红，对应脾胃，苔厚腻多积食，裂纹多胃阴不足"
+      },
+      {
+        "color_desc": "偏红",
+        "name": "舌根",
+        "note": "偏红，对应肾与膀胱，苔厚腻多下焦湿热"
+      },
+      {
+        "color_desc": "偏红",
+        "name": "左舌边",
+        "note": "偏红，对应肝胆，红胀多肝火旺"
+      },
+      {
+        "color_desc": "偏红",
+        "name": "右舌边",
+        "note": "偏红，对应肝胆，红胀多肝火旺"
+      }
+    ]
+  },
+  "demo_label": "淡白舌 · 正常薄白苔",
+  "demo_gallery": {
+    "color": "淡白舌",
+    "shape": "正常薄白苔",
+    "risk": "中",
+    "quality": 89
+  }
+}

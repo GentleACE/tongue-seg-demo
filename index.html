@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>真知「舌」见 · 基于深度学习的舌象智能分析系统</title>
+  <meta name="description" content="真知「舌」见 —— 基于深度学习的中医舌象智能分析系统，上传舌象图片即可完成舌体分割、舌色与舌苔分类及形态学分析。" />
+
+  <!-- Google Fonts: Noto Serif SC / Noto Sans SC / Cormorant Garamond -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
+
+  <!-- ECharts 本地 -->
+  <script src="js/echarts.min.js"></script>
+
+  <link rel="stylesheet" href="css/style.css?v=36" />
+</head>
+<body>
+
+  <!-- ============ 示例演示标识横幅（静态展示站，无实时推理） ============ -->
+  <div class="demo-banner" role="note">
+    <span class="demo-banner-badge">示例演示</span>
+    <span class="demo-banner-text">本站为静态示例展示站，使用内置样例数据模拟完整分析流程，不含实时 AI 推理，所有结果仅供演示参考</span>
+  </div>
+
+  <!-- ============================ Header ============================ -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="brand">
+        <svg class="brand-seal" viewBox="0 0 48 48" aria-hidden="true">
+          <circle cx="24" cy="24" r="22.5" fill="none" stroke="currentColor" stroke-width="1.1" />
+          <circle cx="24" cy="24" r="18.5" fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.55" />
+          <text x="24" y="30.5" text-anchor="middle" font-family="'Noto Serif SC', serif" font-size="19" font-weight="600" fill="currentColor">舌</text>
+        </svg>
+        <div class="brand-text">
+          <h1 class="brand-title">真知「舌」见</h1>
+          <p class="brand-subtitle">基于深度学习的舌象智能分析系统</p>
+        </div>
+      </div>
+      <div class="brand-latin">
+        <span class="latin-line">AI Tongue Perception</span>
+        <span class="latin-sub">Multi-modal Visual Analysis System</span>
+      </div>
+      <div class="header-auth" id="header-auth">
+        <button type="button" class="btn btn-ghost btn-sm" id="guest-btn">游客体验</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="login-btn">登录</button>
+        <button type="button" class="btn btn-primary btn-sm" id="register-btn">注册</button>
+        <div class="auth-user" id="auth-user" hidden>
+          <span class="auth-username" id="auth-username"></span>
+          <button type="button" class="btn btn-ghost btn-sm" id="trend-btn">趋势分析</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="profile-btn">用户中心</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="logout-btn">退出登录</button>
+        </div>
+      </div>
+    </div>
+    <div class="divider" aria-hidden="true">
+      <span class="divider-line"></span>
+      <span class="divider-mark">◆</span>
+      <span class="divider-line"></span>
+    </div>
+  </header>
+
+  <main class="site-main">
+
+    <!-- ============================ 00 Hero ============================ -->
+    <section class="hero" id="hero">
+      <div class="hero-copy">
+        <p class="hero-eyebrow">AI 深度学习 中医数字化</p>
+        <h1 class="hero-title">从一张舌象<br /><em class="hero-divider">到</em><br />数字化视觉档案</h1>
+        <div class="hero-actions">
+          <button type="button" class="btn btn-primary" id="hero-cta">开始舌象分析</button>
+          <a class="btn btn-outline" href="#upload-section">查看示例演示</a>
+          <span class="hero-note">融合 YOLOX 检测、TongueSAM 分割与 Vision Transformer 特征解析的智能舌象视觉分析系统</span>
+        </div>
+      </div>
+      <div class="hero-viz" aria-hidden="true">
+        <div class="hero-ring hero-ring--outer"></div>
+        <div class="hero-ring hero-ring--mid"></div>
+        <div class="hero-ring hero-ring--inner">
+          <img class="hero-twin" src="img/digtwin_overlay.jpg?v=1" alt="AI 数字舌象分割" />
+          <span class="hero-core-label">AI TWIN</span>
+          <span class="hero-scan"></span>
+        </div>
+        <span class="hero-node hero-node--1">TQI</span>
+        <span class="hero-node hero-node--2">SEG</span>
+        <span class="hero-node hero-node--3">ViT</span>
+        <span class="hero-node hero-node--4">FEA</span>
+        <span class="hero-grid" aria-hidden="true"><i style="--gy:20%"><em>X 124.5</em><em>Y 83.2</em></i><i style="--gy:50%"><em>Feature Map</em><em>0.923</em></i><i style="--gy:80%"><em>ROI</em><em>mask</em></i></span>
+      </div>
+    </section>
+
+    <!-- 能力矩阵 -->
+    <div class="hero-metrics" aria-label="能力矩阵">
+      <div class="metric">
+        <span class="metric-value">3</span>
+        <span class="metric-title">级联视觉模型</span>
+        <span class="metric-sub">YOLOX 定位  TongueSAM 分割  ViT 分类</span>
+      </div>
+      <div class="metric">
+        <span class="metric-value">2</span>
+        <span class="metric-title">阶段智能质控</span>
+        <span class="metric-sub">前置采集 后置分析 全程可追溯</span>
+      </div>
+      <div class="metric">
+        <span class="metric-value">20+</span>
+        <span class="metric-title">舌诊分析特征</span>
+        <span class="metric-sub">舌色 舌苔 舌形 络脉 多模态画像</span>
+      </div>
+    </div>
+
+    <!-- ============================ 01 Upload ============================ -->
+    <section id="upload-section" class="section">
+      <div class="section-head">
+        <span class="section-num">01</span>
+        <div class="section-title-group">
+          <h2 class="section-title">图像上传</h2>
+          <p class="section-desc">拖拽或点击上传一张舌象正面图片，支持 JPG / PNG，单张不超过 10MB</p>
+        </div>
+      </div>
+
+      <div class="upload-card" id="dropzone" tabindex="0">
+        <input type="file" id="file-input" accept="image/jpeg,image/png,image/jpg" hidden />
+        <div class="upload-empty" id="upload-empty">
+          <svg class="upload-icon" viewBox="0 0 64 48" aria-hidden="true">
+            <rect x="3" y="6" width="58" height="38" rx="4" fill="none" stroke="currentColor" stroke-width="1.4" />
+            <path d="M3 38 L20 22 L30 32 L44 16 L61 33" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" />
+            <circle cx="46" cy="16" r="3.4" fill="none" stroke="currentColor" stroke-width="1.4" />
+            <path d="M32 44 L32 30 M26 36 L32 30 L38 36" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" />
+          </svg>
+          <p class="upload-title">将舌象图片拖拽到此处</p>
+          <p class="upload-hint">或<span class="upload-link">点击选择文件</span>&nbsp;·&nbsp;JPG / PNG&nbsp;·&nbsp;≤ 10MB</p>
+        </div>
+        <div class="upload-preview" id="upload-preview" hidden>
+          <div class="preview-thumb">
+            <img id="preview-img" alt="上传预览" />
+          </div>
+          <div class="preview-meta">
+            <span class="preview-name" id="preview-name">—</span>
+            <span class="preview-size" id="preview-size">—</span>
+          </div>
+          <button type="button" class="btn btn-ghost btn-sm" id="reselect-btn">重新选择</button>
+        </div>
+      </div>
+
+      <div class="upload-actions">
+        <button type="button" class="btn btn-primary" id="analyze-btn" disabled>开始分析</button>
+        <button type="button" class="btn btn-outline" id="demo-btn">试用示例</button>
+        <span class="upload-tip" id="upload-tip">请先选择一张舌象图片</span>
+      </div>
+
+      <!-- 可选：舌下照片上传（用于舌下络脉分析） -->
+      <div class="sublingual-upload">
+        <label class="sublingual-label" for="sublingual-input">
+          <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true" style="vertical-align:-2px">
+            <rect x="3" y="5" width="14" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="8" cy="9" r="1" fill="currentColor"/>
+            <path d="M4 15 L8 11 L11 13 L14 9 L17 14" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/>
+          </svg>
+          舌下络脉（可选）
+        </label>
+        <input type="file" id="sublingual-input" accept="image/jpeg,image/png,image/jpg" hidden />
+        <span class="sublingual-state" id="sublingual-state">舌面+舌下照片可更精准评估血瘀</span>
+      </div>
+
+      <!-- 示例图库：内置真实推理的多证型案例 -->
+      <div class="demo-gallery">
+        <div class="demo-gallery-head">
+          <span class="demo-gallery-title">示例图库</span>
+          <span class="demo-gallery-hint">以下为内置真实推理样例（多证型），点击任一案例即运行其完整分析流程</span>
+        </div>
+        <div class="demo-gallery-grid" id="demo-gallery-grid"></div>
+      </div>
+      <!-- 游客模式提示横幅 -->
+      <div class="guest-banner" id="guest-banner" hidden>
+        <svg class="guest-banner-icon" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
+          <circle cx="10" cy="10" r="9" fill="none" stroke="currentColor" stroke-width="1.2"/>
+          <path d="M10 6 L10 11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+          <circle cx="10" cy="14" r="1.2" fill="currentColor"/>
+        </svg>
+        <span>您当前为<span class="guest-banner-highlight">游客模式</span>，分析结果仅在本次会话中可见，退出后不会保留历史记录。<a href="#" id="guest-login-hint" class="guest-banner-link">登录/注册</a>以永久保存。</span>
+        <div class="guest-profile-row" id="guest-profile-row">
+          <label class="guest-profile-label">年龄</label>
+          <input type="number" class="guest-profile-input" id="guest-age" placeholder="选填" min="1" max="150" />
+          <label class="guest-profile-label">性别</label>
+          <select class="guest-profile-input" id="guest-gender">
+            <option value="">选填</option>
+            <option value="男">男</option>
+            <option value="女">女</option>
+            <option value="其他">其他</option>
+          </select>
+          <span class="guest-profile-hint">填写后可获得针对性建议</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ Loading ============================ -->
+    <div class="loading-overlay" id="loading-overlay" hidden>
+      <div class="loading-box">
+        <div class="loading-head">
+          <span class="loading-brand">真知「舌」见</span>
+          <span class="loading-progress-num" id="loading-progress-num">0%</span>
+        </div>
+        <div class="loading-progress"><span class="loading-bar" id="loading-bar"></span></div>
+        <p class="loading-title">启动 AI 舌象感知引擎</p>
+        <div class="loading-steps" id="loading-steps"></div>
+        <p class="loading-hint">Multi-stage Vision Pipeline</p>
+      </div>
+    </div>
+
+    <!-- ============================ Error ============================ -->
+    <section id="error-section" class="section" hidden>
+      <div class="error-card">
+        <svg class="error-icon" viewBox="0 0 40 40" aria-hidden="true">
+          <circle cx="20" cy="20" r="18" fill="none" stroke="currentColor" stroke-width="1.4" />
+          <path d="M20 11 L20 23" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+          <circle cx="20" cy="29" r="1.7" fill="currentColor" />
+        </svg>
+        <p class="error-title">分析未能完成</p>
+        <p class="error-msg" id="error-msg">—</p>
+      </div>
+    </section>
+
+    <!-- ============================ 02 Result ============================ -->
+    <section id="result-section" class="section" hidden>
+      <div class="section-head">
+        <span class="section-num">02</span>
+        <div class="section-title-group">
+          <h2 class="section-title">AI 数字舌象画像</h2>
+          <p class="section-desc">DIGITAL TONGUE PROFILE&nbsp;&nbsp;基于视觉特征提取与深度学习模型生成</p>
+        </div>
+      </div>
+
+      <!-- 模型角标：多阶段视觉流水线 -->
+      <div class="pipeline-badge stagger" id="pipeline-badge">
+        <span class="pipeline-badge-label">视觉分析流水线</span>
+        <ul class="pipeline-badge-list">
+          <li class="pipeline-node"><span class="node-name">TQI</span><span class="node-desc">质量控制</span><span class="node-check">✓</span></li>
+          <li class="pipeline-node"><span class="node-name">YOLOX</span><span class="node-desc">舌体定位</span><span class="node-check">✓</span></li>
+          <li class="pipeline-node"><span class="node-name">TongueSAM</span><span class="node-desc">精细分割</span><span class="node-check">✓</span></li>
+          <li class="pipeline-node"><span class="node-name">Mask ROI</span><span class="node-desc">掩膜感知</span><span class="node-check">✓</span></li>
+          <li class="pipeline-node"><span class="node-name">ViT</span><span class="node-desc">特征解析</span><span class="node-check">✓</span></li>
+        </ul>
+      </div>
+
+      <!-- 工作站双栏：左影像查看器 + 右数据面板 -->
+      <div class="ws-grid">
+        <div class="ws-viewer stagger">
+          <div class="ws-viewer-head">
+            <span class="ws-viewer-title">舌象影像查看器</span>
+            <span class="ws-viewer-en">Tongue Imaging View</span>
+            <div class="ws-viewer-tabs">
+              <button type="button" class="viewer-tab is-active" data-view="original">原图</button>
+              <button type="button" class="viewer-tab" data-view="mask">分割</button>
+              <button type="button" class="viewer-tab" data-view="overlay">叠加</button>
+            </div>
+          </div>
+          <div class="ws-viewer-viewport">
+            <img id="img-original" class="viewer-img is-active" alt="原图" />
+            <img id="img-mask" class="viewer-img" alt="分割掩膜" hidden />
+            <img id="img-overlay" class="viewer-img" alt="叠加图" hidden />
+            <div class="ws-scanline" aria-hidden="true"></div>
+          </div>
+          <div class="ws-viewer-status">
+            <span class="ws-stat">Quality <strong id="ws-stat-quality">—</strong></span>
+            <span class="ws-stat">Confidence <strong id="ws-stat-conf">—</strong></span>
+          </div>
+        </div>
+
+        <div class="ws-panels">
+      <!-- TQI 图像质量控制 -->
+      <div class="quality-card stagger" id="quality-card" hidden>
+        <div class="quality-head">
+          <span class="quality-label">采集质量评分</span>
+          <span class="quality-score" id="quality-score">—</span>
+          <span class="quality-level" id="quality-level">—</span>
+        </div>
+        <div class="quality-bar"><span id="quality-bar"></span></div>
+        <div class="quality-comp" id="quality-comp"></div>
+        <p class="quality-note" id="quality-note" hidden></p>
+      </div>
+
+      <!-- 舌象视觉特征画像 -->
+      <div class="profile-card stagger" id="profile-card" hidden>
+        <div class="profile-head">
+          <span class="profile-title">舌象视觉特征画像</span>
+          <span class="profile-id" id="report-id">—</span>
+        </div>
+        <div class="profile-dims">
+          <div class="pdim">
+            <div class="pdim-head">
+              <span class="pdim-name">采集质量</span>
+              <span class="pdim-vals"><span class="pdim-val" id="pf-quality">—</span><span class="pdim-sub" id="pf-quality-sub"></span></span>
+            </div>
+            <div class="pdim-track"><span id="pf-quality-bar"></span></div>
+          </div>
+          <div class="pdim">
+            <div class="pdim-head">
+              <span class="pdim-name">色彩特征</span>
+              <span class="pdim-vals"><span class="pdim-val" id="pf-color">—</span><span class="pdim-sub" id="pf-color-sub"></span></span>
+            </div>
+            <div class="pdim-track"><span id="pf-color-bar"></span></div>
+          </div>
+          <div class="pdim">
+            <div class="pdim-head">
+              <span class="pdim-name">苔质特征</span>
+              <span class="pdim-vals"><span class="pdim-val" id="pf-shape">—</span><span class="pdim-sub" id="pf-shape-sub"></span></span>
+            </div>
+            <div class="pdim-track"><span id="pf-shape-bar"></span></div>
+          </div>
+          <div class="pdim">
+            <div class="pdim-head">
+              <span class="pdim-name">舌体形态</span>
+              <span class="pdim-vals"><span class="pdim-val" id="pf-morph">—</span><span class="pdim-sub" id="pf-morph-sub"></span></span>
+            </div>
+            <div class="pdim-track"><span id="pf-morph-bar"></span></div>
+          </div>
+        </div>
+        <div class="profile-note">
+          <div class="profile-note-head"><span class="profile-note-title">AI 视觉观察</span></div>
+          <ul class="profile-obs" id="profile-observation"></ul>
+          <p class="profile-disclaimer">以上内容仅基于图像视觉特征生成，不作为临床诊断依据</p>
+        </div>
+      </div>
+
+      <!-- AI 证据面板 -->
+      <div class="evidence-card stagger">
+        <button type="button" class="evidence-head" id="evidence-toggle" aria-expanded="false">
+          <span class="evidence-title">AI 分析证据链</span>
+          <span class="evidence-en">Analysis Evidence</span>
+          <span class="evidence-badge">5 步已完成</span>
+          <span class="evidence-arrow" aria-hidden="true">▸</span>
+        </button>
+        <ol class="evidence-list" id="evidence-list">
+          <li class="ev-node"><span class="ev-num">01</span><span class="ev-model">TQI</span><span class="ev-desc">图像质量评估</span><span class="ev-check">✓</span></li>
+          <li class="ev-node"><span class="ev-num">02</span><span class="ev-model">YOLOX</span><span class="ev-desc">舌体精准定位</span><span class="ev-check">✓</span></li>
+          <li class="ev-node"><span class="ev-num">03</span><span class="ev-model">TongueSAM</span><span class="ev-desc">精细语义分割</span><span class="ev-check">✓</span></li>
+          <li class="ev-node"><span class="ev-num">04</span><span class="ev-model">Mask ROI</span><span class="ev-desc">掩膜感知提取</span><span class="ev-check">✓</span></li>
+          <li class="ev-node"><span class="ev-num">05</span><span class="ev-model">ViT</span><span class="ev-desc">视觉特征编码</span><span class="ev-check">✓</span></li>
+        </ol>
+      </div>
+        </div>
+      </div>
+
+      <!-- 数字舌象 Twin：原图配特征空间 -->
+      <div class="twin-card stagger" id="twin-card">
+        <div class="twin-pane twin-pane--image">
+          <div class="twin-pane-head">
+            <span class="twin-pane-title">真实舌象</span>
+            <span class="twin-pane-en">Original Image</span>
+          </div>
+          <div class="twin-img-wrap"><img id="twin-original" alt="舌象原图" /></div>
+        </div>
+        <div class="twin-pane twin-pane--space">
+          <div class="twin-pane-head">
+            <span class="twin-pane-title">AI 特征空间</span>
+            <span class="twin-pane-en">Feature Space</span>
+            <span class="twin-quality" id="twin-quality">采集质量 —</span>
+          </div>
+          <div class="twin-space" id="twin-space"></div>
+          <p class="twin-note">四点表示当前舌象在归一化特征空间中的真实强度映射，仅供视觉参考，非临床诊断</p>
+        </div>
+      </div>
+
+      <!-- 舌象概览 -->
+      <div class="overview-card stagger">
+        <div class="overview-item">
+          <span class="overview-label">舌质颜色</span>
+          <div class="overview-main">
+            <span class="overview-value" id="ov-color-class">—</span>
+            <span class="overview-conf" id="ov-color-conf">—</span>
+          </div>
+          <div class="overview-bar"><span id="ov-color-bar"></span></div>
+        </div>
+        <div class="overview-divider" aria-hidden="true"></div>
+        <div class="overview-item">
+          <span class="overview-label">舌苔状态</span>
+          <div class="overview-main">
+            <span class="overview-value" id="ov-shape-class">—</span>
+            <span class="overview-conf" id="ov-shape-conf">—</span>
+          </div>
+          <div class="overview-bar"><span id="ov-shape-bar"></span></div>
+        </div>
+        <div class="overview-divider" aria-hidden="true"></div>
+        <div class="overview-item">
+          <span class="overview-label">舌体占比</span>
+          <div class="overview-main">
+            <span class="overview-value" id="ov-ratio">—</span>
+            <span class="overview-conf">占画面</span>
+          </div>
+          <div class="overview-bar"><span id="ov-ratio-bar"></span></div>
+        </div>
+      </div>
+
+      <!-- 视觉特征分布 -->
+      <div class="ws-bar">
+        <span class="ws-bar-index">III</span>
+        <span class="ws-bar-title">视觉特征分布</span>
+        <span class="ws-bar-en">Feature Distribution</span>
+      </div>
+
+      <!-- 置信度图表 -->
+      <div class="chart-grid">
+        <div class="chart-card stagger">
+          <h3 class="chart-title">舌色置信度分布<span class="chart-sub">5 类</span></h3>
+          <div id="chart-color" class="chart-box"></div>
+        </div>
+        <div class="chart-card stagger">
+          <h3 class="chart-title">舌苔置信度分布<span class="chart-sub">3 类</span></h3>
+          <div id="chart-shape" class="chart-box"></div>
+        </div>
+      </div>
+
+      <!-- 全面舌象分析 -->
+      <div class="full-analysis">
+        <h3 class="detail-title">全面舌象分析</h3>
+        <p class="analysis-subtitle">基于图像特征分析的多维度舌象评估</p>
+
+        <!-- 舌体形态 -->
+        <div class="analysis-card stagger">
+          <div class="analysis-header">
+            <span class="analysis-icon">01</span>
+            <h4>舌体形态</h4>
+          </div>
+          <div class="analysis-body" id="analysis-body-shape">
+            <p class="analysis-value">分析中...</p>
+          </div>
+        </div>
+
+        <!-- 裂纹检测 -->
+        <div class="analysis-card stagger">
+          <div class="analysis-header">
+            <span class="analysis-icon">02</span>
+            <h4>裂纹检测</h4>
+          </div>
+          <div class="analysis-body" id="analysis-cracks">
+            <p class="analysis-value">分析中...</p>
+          </div>
+        </div>
+
+        <!-- 舌苔质地 -->
+        <div class="analysis-card stagger">
+          <div class="analysis-header">
+            <span class="analysis-icon">03</span>
+            <h4>舌苔质地</h4>
+          </div>
+          <div class="analysis-body" id="analysis-coating-texture">
+            <p class="analysis-value">分析中...</p>
+          </div>
+        </div>
+
+        <!-- 舌苔颜色 -->
+        <div class="analysis-card stagger">
+          <div class="analysis-header">
+            <span class="analysis-icon">04</span>
+            <h4>舌苔颜色</h4>
+          </div>
+          <div class="analysis-body" id="analysis-coating-color">
+            <p class="analysis-value">分析中...</p>
+          </div>
+        </div>
+
+        <!-- 全息分区 -->
+        <div class="analysis-card stagger">
+          <div class="analysis-header">
+            <span class="analysis-icon">05</span>
+            <h4>全息分区</h4>
+          </div>
+          <div class="analysis-body" id="analysis-zonal">
+            <p class="analysis-value">分析中...</p>
+          </div>
+        </div>
+
+        <!-- 瘀斑/瘀点检测 -->
+        <div class="analysis-card stagger">
+          <div class="analysis-header">
+            <span class="analysis-icon">06</span>
+            <h4>瘀斑/瘀点检测</h4>
+          </div>
+          <div class="analysis-body" id="analysis-ecchymosis">
+            <p class="analysis-value">分析中...</p>
+          </div>
+        </div>
+
+        <!-- 舌色细分 -->
+        <div class="analysis-card stagger">
+          <div class="analysis-header">
+            <span class="analysis-icon">07</span>
+            <h4>舌色细分</h4>
+          </div>
+          <div class="analysis-body" id="analysis-refined-color">
+            <p class="analysis-value">分析中...</p>
+          </div>
+        </div>
+
+        <!-- 舌下络脉 -->
+        <div class="analysis-card stagger">
+          <div class="analysis-header">
+            <span class="analysis-icon">08</span>
+            <h4>舌下络脉</h4>
+          </div>
+          <div class="analysis-body" id="analysis-sublingual">
+            <p class="analysis-value">分析中...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 病理风险评估 -->
+      <div class="pathological-section">
+        <h3 class="detail-title">病理风险评估</h3>
+        <p class="analysis-subtitle">基于中医临床舌诊知识的多维度风险提示，<strong>仅供参考，不作为诊断依据</strong></p>
+
+        <!-- 整体风险等级 -->
+        <div class="risk-overall" id="risk-overall" hidden>
+          <div class="risk-badge" id="risk-badge">
+            <span class="risk-badge-label">整体风险</span>
+            <span class="risk-badge-level" id="risk-level-text">—</span>
+          </div>
+          <p class="risk-overall-note" id="risk-overall-note">综合评估所有维度后的整体风险等级</p>
+          <p class="risk-note-line" id="risk-note-line" hidden></p>
+        </div>
+
+        <!-- 五类风险卡片 -->
+        <div class="risk-grid" id="risk-grid">
+          <!-- 危重警示类 -->
+          <div class="risk-card stagger" id="risk-card-critical_warning">
+            <div class="risk-card-header">
+              <span class="risk-icon risk-icon-critical">⚠</span>
+              <div class="risk-card-title-group">
+                <h4 class="risk-card-title">危重警示类</h4>
+                <span class="risk-level" id="risk-level-critical_warning">—</span>
+              </div>
+            </div>
+            <div class="risk-card-body" id="risk-body-critical_warning">
+              <p class="risk-finding">分析中...</p>
+            </div>
+            <div class="risk-card-action" id="risk-action-critical_warning"></div>
+          </div>
+
+          <!-- 心脑血管与血瘀类 -->
+          <div class="risk-card stagger" id="risk-card-cardiovascular">
+            <div class="risk-card-header">
+              <span class="risk-icon risk-icon-cv">❤</span>
+              <div class="risk-card-title-group">
+                <h4 class="risk-card-title">心脑血管与血瘀类</h4>
+                <span class="risk-level" id="risk-level-cardiovascular">—</span>
+              </div>
+            </div>
+            <div class="risk-card-body" id="risk-body-cardiovascular">
+              <p class="risk-finding">分析中...</p>
+            </div>
+            <div class="risk-card-action" id="risk-action-cardiovascular"></div>
+          </div>
+
+          <!-- 感染与热性病类 -->
+          <div class="risk-card stagger" id="risk-card-infection">
+            <div class="risk-card-header">
+              <span class="risk-icon risk-icon-infection">🔥</span>
+              <div class="risk-card-title-group">
+                <h4 class="risk-card-title">感染与热性病类</h4>
+                <span class="risk-level" id="risk-level-infection">—</span>
+              </div>
+            </div>
+            <div class="risk-card-body" id="risk-body-infection">
+              <p class="risk-finding">分析中...</p>
+            </div>
+            <div class="risk-card-action" id="risk-action-infection"></div>
+          </div>
+
+          <!-- 代谢与消化类 -->
+          <div class="risk-card stagger" id="risk-card-metabolic">
+            <div class="risk-card-header">
+              <span class="risk-icon risk-icon-metabolic">⚕</span>
+              <div class="risk-card-title-group">
+                <h4 class="risk-card-title">代谢与消化类</h4>
+                <span class="risk-level" id="risk-level-metabolic">—</span>
+              </div>
+            </div>
+            <div class="risk-card-body" id="risk-body-metabolic">
+              <p class="risk-finding">分析中...</p>
+            </div>
+            <div class="risk-card-action" id="risk-action-metabolic"></div>
+          </div>
+
+          <!-- 神经系统与情志类 -->
+          <div class="risk-card stagger" id="risk-card-neurological">
+            <div class="risk-card-header">
+              <span class="risk-icon risk-icon-neuro">🧠</span>
+              <div class="risk-card-title-group">
+                <h4 class="risk-card-title">神经系统与情志类</h4>
+                <span class="risk-level" id="risk-level-neurological">—</span>
+              </div>
+            </div>
+            <div class="risk-card-body" id="risk-body-neurological">
+              <p class="risk-finding">分析中...</p>
+            </div>
+            <div class="risk-card-action" id="risk-action-neurological"></div>
+          </div>
+        </div>
+
+        <!-- 危险舌象自查表 -->
+        <div class="self-check-section" id="self-check-section" hidden>
+          <h4 class="self-check-title">危险舌象自查表</h4>
+          <p class="self-check-subtitle">根据当前分析结果匹配的舌象-疾病关联参考</p>
+          <div class="self-check-table-wrap">
+            <table class="self-check-table" id="self-check-table">
+              <thead>
+                <tr>
+                  <th class="check-col-sign">舌象表现</th>
+                  <th class="check-col-disease">可能关联的西医疾病方向</th>
+                  <th class="check-col-action">应对建议</th>
+                </tr>
+              </thead>
+              <tbody id="self-check-body">
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 免责声明 -->
+        <div class="risk-disclaimer" id="risk-disclaimer" hidden>
+          <p class="disclaimer-text" id="disclaimer-text"></p>
+        </div>
+      </div>
+
+      <!-- 个性化建议（仅登录用户可见） -->
+      <div class="personalized-section" id="personalized-section" hidden>
+        <h3 class="detail-title">个性化建议</h3>
+        <p class="analysis-subtitle" id="personalized-summary"></p>
+        <div class="personalized-list" id="personalized-list"></div>
+        <div class="personalized-modifiers" id="personalized-modifiers" hidden>
+          <h4 class="personalized-subtitle">风险调整提示</h4>
+          <ul class="personalized-modifier-list" id="personalized-modifier-list"></ul>
+        </div>
+      </div>
+
+      <!-- 形态指标 + 参考说明 -->
+      <div class="detail-grid">
+        <div class="detail-card stagger">
+          <h3 class="detail-title">舌体形态指标</h3>
+          <table class="morph-table">
+            <tbody>
+              <tr>
+                <th>舌体面积占比</th>
+                <td class="morph-value" id="morph-area">—</td>
+                <td class="morph-unit">占画面</td>
+              </tr>
+              <tr>
+                <th>长宽比</th>
+                <td class="morph-value" id="morph-aspect">—</td>
+                <td class="morph-unit">宽 / 高</td>
+              </tr>
+              <tr>
+                <th>对称性</th>
+                <td class="morph-value" id="morph-symmetry">—</td>
+                <td class="morph-unit">0 – 1</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="detail-card stagger">
+          <h3 class="detail-title">参考说明</h3>
+          <div class="note-block">
+            <p class="note-tag">舌色</p>
+            <p class="note-text" id="note-color">—</p>
+          </div>
+          <div class="note-block">
+            <p class="note-tag">舌苔</p>
+            <p class="note-text" id="note-shape">—</p>
+          </div>
+          <div class="note-block">
+            <p class="note-tag">全息分区</p>
+            <p class="note-text" id="note-zonal">传统中医将舌面划分为不同脏腑区域：舌尖对应心肺，舌中对应脾胃，舌根对应肾与膀胱，舌边对应肝胆。各分区颜色异常可辅助定位脏腑问题。</p>
+          </div>
+          <p class="note-foot">以上解读基于中医舌诊基础知识（三看两注意：看舌质、看舌苔、看全息分区，注意染苔和伸舌姿势），仅供学习参考，不作为临床诊断依据。</p>
+        </div>
+      </div>
+
+      <div class="result-actions">
+        <button type="button" class="btn btn-primary" id="export-pdf-btn">导出 PDF 报告</button>
+      </div>
+    </section>
+
+    <!-- ============================ 03 History ============================ -->
+    <section id="history-section" class="section">
+      <div class="section-head">
+        <span class="section-num">03</span>
+        <div class="section-title-group">
+          <h2 class="section-title">历史记录</h2>
+          <p class="section-desc">最近的舌象分析记录，点击可重新查看详情</p>
+        </div>
+      </div>
+      <div class="history-list" id="history-list">
+        <p class="history-empty" id="history-empty">暂无历史记录</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============================ Footer ============================ -->
+  <footer class="site-footer">
+    <div class="divider divider-footer" aria-hidden="true">
+      <span class="divider-line"></span>
+      <span class="divider-mark">◆</span>
+      <span class="divider-line"></span>
+    </div>
+    <div class="footer-inner">
+      <p class="footer-brand">真知「舌」见&nbsp;<span class="footer-latin">Tongue Diagnosis Intelligence</span></p>
+      <p class="footer-meta">仅供学习研究&nbsp;·&nbsp;中医舌诊辅助分析&nbsp;·&nbsp;不作为临床诊断依据</p>
+    </div>
+  </footer>
+
+  <script src="js/app.js?v=36"></script>
+
+  <!-- ============================ Auth Modal ============================ -->
+  <div class="modal-overlay" id="auth-modal" hidden>
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title" id="auth-modal-title">登录</h3>
+        <button type="button" class="modal-close" id="auth-modal-close" aria-label="关闭">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="auth-form" id="auth-form-login">
+          <div class="form-group">
+            <label class="form-label" for="auth-username-input">用户名</label>
+            <input type="text" class="form-input" id="auth-username-input" placeholder="输入用户名" autocomplete="username" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="auth-password-input">密码</label>
+            <input type="password" class="form-input" id="auth-password-input" placeholder="输入密码" autocomplete="current-password" />
+          </div>
+          <div class="form-group" id="auth-confirm-group" hidden>
+            <label class="form-label" for="auth-confirm-input">确认密码</label>
+            <input type="password" class="form-input" id="auth-confirm-input" placeholder="再次输入密码" autocomplete="new-password" />
+          </div>
+          <p class="form-input-hint" id="auth-username-hint" hidden>密码需至少6位，包含数字和英文字母</p>
+          <p class="form-error" id="auth-error" hidden></p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="auth-submit-btn">登录</button>
+        <p class="auth-switch" id="auth-switch">
+          还没有账号？<a href="#" id="auth-toggle-link">立即注册</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================ User Center Modal ============================ -->
+  <div class="modal-overlay" id="profile-modal" hidden>
+    <div class="modal-box modal-box--wide">
+      <div class="modal-header">
+        <h3 class="modal-title">用户中心</h3>
+        <button type="button" class="modal-close" id="profile-modal-close" aria-label="关闭">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="profile-tabs">
+          <button type="button" class="profile-tab active" data-tab="info">个人资料</button>
+          <button type="button" class="profile-tab" data-tab="password">修改密码</button>
+          <button type="button" class="profile-tab" data-tab="history">历史记录</button>
+        </div>
+
+        <!-- 个人资料 -->
+        <div class="profile-panel" id="profile-panel-info">
+          <div class="form-group">
+            <label class="form-label" for="profile-username">用户名</label>
+            <input type="text" class="form-input" id="profile-username" disabled />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="profile-age">年龄</label>
+            <input type="number" class="form-input" id="profile-age" placeholder="输入年龄（可选）" min="1" max="150" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="profile-gender">性别</label>
+            <select class="form-input" id="profile-gender">
+              <option value="">— 请选择 —</option>
+              <option value="男">男</option>
+              <option value="女">女</option>
+              <option value="其他">其他</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="profile-medical">病史（可选）</label>
+            <textarea class="form-input form-textarea" id="profile-medical" placeholder="如：高血压、糖尿病、过敏史等，请用逗号分隔" rows="3"></textarea>
+          </div>
+          <p class="form-error" id="profile-error" hidden></p>
+          <p class="form-success" id="profile-success" hidden></p>
+          <button type="button" class="btn btn-primary" id="profile-save-btn">保存资料</button>
+        </div>
+
+        <!-- 修改密码 -->
+        <div class="profile-panel" id="profile-panel-password" hidden>
+          <div class="form-group">
+            <label class="form-label" for="profile-old-pwd">原密码</label>
+            <input type="password" class="form-input" id="profile-old-pwd" placeholder="输入原密码" autocomplete="current-password" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="profile-new-pwd">新密码</label>
+            <input type="password" class="form-input" id="profile-new-pwd" placeholder="输入新密码（至少6位）" autocomplete="new-password" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="profile-confirm-pwd">确认新密码</label>
+            <input type="password" class="form-input" id="profile-confirm-pwd" placeholder="再次输入新密码" autocomplete="new-password" />
+          </div>
+          <p class="form-error" id="profile-pwd-error" hidden></p>
+          <p class="form-success" id="profile-pwd-success" hidden></p>
+          <button type="button" class="btn btn-primary" id="profile-pwd-btn">修改密码</button>
+        </div>
+
+        <!-- 历史记录详情 -->
+        <div class="profile-panel" id="profile-panel-history" hidden>
+          <div class="profile-history-header">
+            <span class="profile-history-count" id="profile-history-count">共 0 条记录</span>
+          </div>
+          <div class="profile-history-list" id="profile-history-list">
+            <p class="history-empty">暂无历史记录</p>
+          </div>
+        </div>
+
+        </div>
+    </div>
+  </div>
+
+  <!-- ============================ Trend Analysis Modal ============================ -->
+  <div class="modal-overlay" id="trend-modal" hidden>
+    <div class="modal-box modal-box--wide">
+      <div class="modal-header">
+        <h3 class="modal-title">趋势分析</h3>
+        <button type="button" class="modal-close" id="trend-modal-close" aria-label="关闭">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="trend-empty" id="trend-empty" hidden>
+          <p class="history-empty">至少需要 2 条分析记录才能生成趋势图</p>
+        </div>
+        <div class="trend-chart-container" id="trend-chart-container">
+          <div class="trend-chart" id="trend-chart"></div>
+        </div>
+        <div class="trend-legend" id="trend-legend">
+          <div class="trend-legend-item">
+            <span class="trend-legend-dot" style="background:#C25B3E"></span>
+            <span>舌色趋势</span>
+          </div>
+          <div class="trend-legend-item">
+            <span class="trend-legend-dot" style="background:#2C5F4A"></span>
+            <span>舌苔趋势</span>
+          </div>
+          <div class="trend-legend-item">
+            <span class="trend-legend-dot" style="background:#F9A825"></span>
+            <span>风险等级</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
